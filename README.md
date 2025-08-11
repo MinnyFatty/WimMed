@@ -1,5 +1,4 @@
 # WimMed
-/Generate a ReadMe File for the solution based on below summary and design instructions:
 ///<summary>
 Technical Requirements – Full-Stack Web Application
 
