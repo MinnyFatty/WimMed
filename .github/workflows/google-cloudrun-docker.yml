@@ -1,4 +1,4 @@
-name: .NET CI/CD
+name: Google Cloud Run Docker CI/CD
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ release ]
 
 jobs:
-  build-test-publish:
+  build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,17 +19,10 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
-    - name: Restore dependencies
-      run: dotnet restore
-
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build --configuration Release
 
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
-    # Optional: Publish the app (for deployment)
-    - name: Publish
-      run: dotnet publish --configuration Release --output ./publish
-
-    # Add deployment steps here (e.g., upload to Azure, AWS, etc.)
+    # Add Docker build, push, and Cloud Run deploy steps here as needed
