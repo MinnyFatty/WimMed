@@ -43,6 +43,6 @@ namespace WimMed.Models.Entities
         [DisplayName("Date of Birth")]
         public DateOnly DateOfBirth { get; set; }
 
-        public ICollection<PatientInfo>? PatientInfos { get; set; } //Navigation property for related PatientInfo records
+       
     }
 }
