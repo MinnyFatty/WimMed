@@ -125,8 +125,6 @@ namespace WimMed.Controllers
             existingPatientInfo.Height = patientInfo.Height;
             existingPatientInfo.Age = patientInfo.Age;
 
-
-
             dbContext.SaveChanges();
             CalculateBMI(existingPatientInfo.PatientId); // Recalculate BMI after updating weight or height
             dbContext.SaveChanges();
@@ -149,6 +147,35 @@ namespace WimMed.Controllers
             dbContext.PatientInfos.Remove(patientInfo);
             dbContext.SaveChanges();
             return Ok("Patient information deleted successfully.");
+        }
+
+        /// <summary>
+        /// Add a new patient information record to the database.
+        /// </summary>
+        
+        [HttpPost]
+        [Route("AddPatientInfo")]
+        public IActionResult AddPatientInfo([FromBody] PatientInfo patientInfo)
+        {
+            if (patientInfo == null)
+            {
+                return BadRequest("Patient information data is null.");
+            }
+            // Validate that the patient exists before adding patient info
+            var patient = dbContext.Patients.FirstOrDefault(p => p.Id == patientInfo.PatientId);
+            if (patient == null)
+            {
+                return NotFound("Patient not found.");
+            }
+            // Validate required field patientInfo.PatientId
+            if (patientInfo.PatientId == Guid.Empty)
+            {
+                return BadRequest("PatientId is required.");
+            }
+
+            dbContext.PatientInfos.Add(patientInfo);
+            dbContext.SaveChanges();
+            return CreatedAtAction(nameof(GetPatientInfoById), new { id = patientInfo.Id }, patientInfo);
         }
 
     }

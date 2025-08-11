@@ -35,7 +35,22 @@ WimMed is a full-stack web application designed to manage patient records effici
 - **Optimized for Android Tablets**: The application is designed to be user-friendly and optimized for use on Android tablets, ensuring a smooth user experience on mobile devices.
 - **Technology Stack**:
   - **Backend**: ASP.NET Core (C#)
+	- Setup instructions:
+	1. Clone the repository to your local machine.
+	2. Install the required dependencies for both the backend and frontend.
+	3. Configure the database connection string in the backend application settings in `appsettings.json`.
+	4. Run the database migrations to set up the initial schema by executing the command `dotnet ef database update`.
+	5. Start the backend server by running `dotnet run` in the backend project directory.
   - **Frontend**: Angular
+	- Setup instructions:
+	1. Navigate to the frontend project directory and run `ng serve` to start the Angular application.
+	2. Open your web browser and go to `http://localhost:4200` to access the application.
+	3. Ensure that the API URL in the Angular environment configuration file matches the backend server URL.
+	4. The API URL can be found in the `src/environments/environment.ts` file under the `apiUrl` property (e.g., `http://localhost:5000/api`).
+	5. Ensure that this URL matches the backend server's running address.
+	6. Your localhost is unique to your machine, so the URL may vary based on your local setup.
+	7. Ensure that you have the .NET SDK and Node.js installed on your machine to run the application successfully.
+	8. For Android tablet optimization, ensure that the application is responsive and test it on an Android tablet to verify usability.
   - **Database**: Any SQL-compliant option (e.g., PostgreSQL, MySQL, SQL Server)
 	- Code Quality: The code is structured to follow best practices, ensuring maintainability and scalability.
 		- Code-First Approach: The application is built with a code-first approach, allowing for easy modifications and updates to the database schema as needed.
@@ -44,9 +59,7 @@ WimMed is a full-stack web application designed to manage patient records effici
 			1. Install the required dependencies for both the backend and frontend.
 			2. Configure the database connection string in the backend application settings in `appsettings.json`.
 			3. Run the database migrations to set up the initial schema by executing the command `dotnet ef database update`.
-			4. Start the backend server by running `dotnet run` in the backend project directory.
-			5. Navigate to the frontend project directory and run `ng serve` to start the Angular application.
-			6. Open your web browser and go to `http://localhost:4200` to access the application.
+
 		- 2. Ensure that you have the .NET SDK and Node.js installed on your machine to run the application successfully.
 		- 3. For Android tablet optimization, ensure that the application is responsive and test it on an Android tablet to verify usability.
 - **Contributing**: Contributions are welcome! Please follow the standard Git workflow for submitting pull requests and issues.
