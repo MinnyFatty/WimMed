@@ -39,6 +39,7 @@ public static class DatabaseSeeder
       }
 
       dbContext.Patients.AddRange(patients);
+      dbContext.SaveChanges();
       dbContext.PatientInfos.AddRange(patientInfos);
       dbContext.SaveChanges();
     }
