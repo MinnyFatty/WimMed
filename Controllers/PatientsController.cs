@@ -98,7 +98,7 @@ namespace WimMed.Controllers
     /// <param name="id">The unique identifier of the patient.</param>
 
     [HttpPut]
-    [Route("{id:guid}")]
+    [Route("EditPatient/{id:guid}")]
     public IActionResult EditPatient(Guid id, [FromBody] Models.Entities.Patient updatedPatient)
     {
       if (updatedPatient == null)
@@ -150,7 +150,7 @@ namespace WimMed.Controllers
     /// </summary>
     /// <param name="id">The unique identifier of the patient.</param>
     [HttpDelete]
-    [Route("{id:guid}")]
+    [Route("DeletePatient/{id:guid}")]
     public IActionResult DeletePatient(Guid id)
     {
       var patient = dbContext.Patients.FirstOrDefault(p => p.Id == id);
@@ -171,6 +171,7 @@ namespace WimMed.Controllers
     /// <param name="DateOfBirth">The date of birth in "yyyy-MM-dd" format.</param>
 
     [HttpGet]
+    [Route("ValidateSouthAfricanIdNumberUsingDOB")]
     public IActionResult ValidateSouthAfricanIdNumberUsingDOB(string idNumber, string DateOfBirth)
     {
       // Validate the South African ID number format using date of birth
@@ -204,6 +205,7 @@ namespace WimMed.Controllers
     ///<returns>List of Patient Entities that match criteria</returns>
 
     [HttpPost]
+    [Route("FindPatient")]
     public IActionResult FindPatient(string searchText)
     {
       var patients = dbContext.Patients
