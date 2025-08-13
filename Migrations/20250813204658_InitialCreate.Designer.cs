@@ -12,8 +12,8 @@ using WimMed.Data;
 namespace WimMed.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250813203848_init2")]
-    partial class init2
+    [Migration("20250813204658_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
