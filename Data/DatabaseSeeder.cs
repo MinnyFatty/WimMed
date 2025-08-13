@@ -19,7 +19,7 @@ public static class DatabaseSeeder
                     Id = Guid.NewGuid(),
                     Name = $"Name{i}",
                     Surname = $"Surname{i}",
-                    IdNumber = $"{random.Next(60, 99):D2}{random.Next(1, 12):D2}{random.Next(1, 28):D2}{random.Next(1000, 9999):D4}000{i % 10}",
+                    IdNumber = $"{random.Next(60, 99):D2}{random.Next(1, 12):D2}{random.Next(1, 28):D2}{random.Next(1000, 9999):D4}00{i % 10}",
                     Phone = $"082{random.Next(1000000, 9999999)}",
                     Email = $"patient{i}@wimmail.co.za",
                     DateOfBirth = new DateOnly(random.Next(1960, 2005), random.Next(1, 12), random.Next(1, 28))
