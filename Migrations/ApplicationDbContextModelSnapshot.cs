@@ -86,23 +86,7 @@ namespace WimMed.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PatientId");
-
                     b.ToTable("PatientInfos");
-                });
-
-            modelBuilder.Entity("WimMed.Models.Entities.PatientInfo", b =>
-                {
-                    b.HasOne("WimMed.Models.Entities.Patient", null)
-                        .WithMany("PatientInfos")
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("WimMed.Models.Entities.Patient", b =>
-                {
-                    b.Navigation("PatientInfos");
                 });
 #pragma warning restore 612, 618
         }

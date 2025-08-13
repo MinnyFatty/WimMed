@@ -1,0 +1,24 @@
+<div class="full-screen page-content" (keyup.enter)="submitForm()">
+    <div class="wrapper">
+        <!-- <img class="logo-img" src="./assets/img/logo.png" alt=""> -->
+            class="logo-img" alt="">
+    <img class="logo-img" src="./assets/img/wimmylogo.png" alt="Wimmy Logo">
+        <div class="text-wrapper">
+            <h1 class="title-text">
+                WimMed
+            </h1>
+        </div>
+        <!--错误提示-->
+        <nz-alert nzType="error" nzMessage="{{loginError}}" class="login-error" *ngIf="loginError!==''"></nz-alert>
+        <!--登录信息-->
+        <input nz-input placeholder="请输入用户名" #usernameInput [(ngModel)]="username">
+        <input class="password-input" nz-input type="password" placeholder="请输入密码" #passwordInput [(ngModel)]="password">
+                <button nz-button [nzType]="'primary'" (click)="submitForm()" [disabled]="!usernameInput.value || !passwordInput.value">
+                Login
+            </button>
+        <div class="copy-right">
+            Copyright © 2018-2019 jun-tech
+            <a href="https://github.com/jun-tech/ng-ant-design-pro-platform">github</a>
+        </div>
+    </div>
+</div>

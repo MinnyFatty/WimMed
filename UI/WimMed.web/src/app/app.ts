@@ -1,70 +1,103 @@
-import { Component, inject, Input, input, InputSignal, signal } from '@angular/core';
+// ...existing imports...
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { PatientListComponent } from './patient-list.component';
-import { HttpClient, HttpClientModule, provideHttpClient } from '@angular/common/http';
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { RouterModule } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-// other imports
-import { Patient } from '../models/Patient.model'; // Adjust the path if needed
-import { AsyncPipe } from '@angular/common';
-import { JsonPipe } from '@angular/common';
-import { FormsModule, NgModel } from '@angular/forms';
-import { WimMedApiService } from './wimmed-api.service';
-import { appConfig } from './app.config';
+import { Patient } from '../models/Patient.model';
+import { FormsModule } from '@angular/forms';
 import { NewPatient } from '../models/NewPatient.model';
-
-// import { AppComponent } from './app.component'; // Removed because AppComponent is declared in this file
-
-
+import { PatientInfo } from '../models/PatientInfo.model';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, AsyncPipe],
+  imports: [RouterOutlet, FormsModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class AppComponent {
-  protected readonly title = signal('WimMed.web');
   http = inject(HttpClient);
 
-  patients$ = this.getPatients();
-
-//accept input from app.html for newPatient
-  name: InputSignal<string> = input('');
-  surname: InputSignal<string> = input('');
-  idNumber: InputSignal<string> = input('');
-  phone: InputSignal<string> = input('');
-  email: InputSignal<string> = input('');
-  dateOfBirth: InputSignal<Date> = input(new Date());
+  patients$: Observable<Patient[]> = this.getPatients();
 
   newPatient: NewPatient = {
-    name: this.name(),
-    surname: this.surname(),
-    idNumber: this.idNumber(),
-    phone: this.phone(),
-    email: this.email(),
-    dateOfBirth: this.dateOfBirth()
+    name: '',
+    surname: '',
+    idNumber: '',
+    phone: '',
+    email: '',
+    dateOfBirth: new Date()
   };
 
-   newPatient$  = this.addPatient(this.newPatient);
+  // Fetch all patients
+  getPatients(): Observable<Patient[]> {
+    return this.http.get<Patient[]>('https://localhost:7189/api/Patients/all');
+  }
 
-private getPatients(): Observable<Patient[]> {
-  return this.http.get<Patient[]>('https://localhost:7189/api/Patients/all');
+  // Refresh patient list
+  refreshPatients() {
+    this.patients$ = this.getPatients();
+  }
+
+  // Add a new patient
+  onAddPatient() {
+    this.http.post<Patient>('https://localhost:7189/api/Patients', this.newPatient)
+      .subscribe({
+        next: () => {
+          this.refreshPatients();
+          this.newPatient = {
+            name: '',
+            surname: '',
+            idNumber: '',
+            phone: '',
+            email: '',
+            dateOfBirth: new Date()
+          };
+        }
+      });
+  }
+  // Update an existing patient
+  onUpdatePatient(id: string) {
+    this.http.put<Patient>(`https://localhost:7189/api/Patients/${id}`, this.newPatient)
+      .subscribe(() => {
+        this.refreshPatients();
+        this.newPatient = {
+          name: '',
+          surname: '',
+          idNumber: '',
+          phone: '',
+          email: '',
+          dateOfBirth: new Date()
+        };
+      });
+  }
+
+  // Select a patient for editing
+  onSelectPatient(patient: Patient) {
+    this.newPatient = { ...patient };
+  }
+
+  // Delete a patient
+  onDeletePatient(id: string) {
+    this.http.delete<void>(`https://localhost:7189/api/Patients/${id}`)
+      .subscribe(() => this.refreshPatients());
+  }
+
+  // Deselect the currently selected patient
+  onDeselectPatient() {
+    this.newPatient = {
+      name: '',
+      surname: '',
+      idNumber: '',
+      phone: '',
+      email: '',
+      dateOfBirth: new Date()
+    };
+  } 
+
+// Update PatientInfo using the specific endpoint
+onEditPatientInfo(patientId: string, patientInfo: PatientInfo) {
+  this.http.put<PatientInfo>(`https://localhost:7189/api/PatientInfos/EditPatientInfo/${patientId}`, patientInfo)
+    .subscribe(() => this.refreshPatients());
 }
-
-public editPatient(id: string, patient: Patient): Observable<Patient> {
-  return this.http.put<Patient>(`https://localhost:7189/api/Patients/${id}`, patient);
-}
-
-public addPatient(patient: NewPatient): Observable<Patient> {
-  return this.http.post<Patient>('https://localhost:7189/api/Patients', patient);
-}
-
-public deletePatient(id: string): Observable<void> {
-  return this.http.delete<void>(`https://localhost:7189/api/Patients/${id}`);
-}
-
 }
