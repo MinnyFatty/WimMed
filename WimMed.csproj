@@ -21,4 +21,8 @@
     <Folder Include="Migrations\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="UI\wimmed-admin.web\.github\workflows\prod.yml" />
+  </ItemGroup>
+
 </Project>

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using WimMed.Data;
 
 namespace WimMed.Controllers
@@ -31,7 +32,7 @@ namespace WimMed.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the patient.</param>"
         [HttpGet]
-        [Route("{id:guid}")]
+        [Route("GetPatientById/{id:guid}")]
         public IActionResult GetPatientById(Guid id)
         {
             var patient = dbContext.Patients.FirstOrDefault(p => p.Id == id);
@@ -99,7 +100,7 @@ namespace WimMed.Controllers
         /// <param name="id">The unique identifier of the patient.</param>
 
         [HttpPut]
-        [Route("{id:guid}")]
+        [Route("EditPatient/{id:guid}")]
         public IActionResult EditPatient(Guid id, [FromBody] Models.Entities.Patient updatedPatient)
         {
             if (updatedPatient == null)
@@ -118,7 +119,28 @@ namespace WimMed.Controllers
                 return BadRequest("Name, Surname, ID Number, and Phone are required fields.");
             }
             // Validate South African ID number format
-            ValidateSouthAfricanIdNumberUsingDOB(updatedPatient.IdNumber, updatedPatient.DateOfBirth.ToString("yyyy-MM-dd"));
+            //Handle the case where the IDNumber/DOB is being updated and needs to be validated again
+            if (existingPatient.IdNumber != updatedPatient.IdNumber || existingPatient.DateOfBirth != updatedPatient.DateOfBirth)
+                try
+                {
+                    //store response of call ValidateSouthAfricanIdNumberUsingDOB in a variable for future use if needed
+
+                    var response = ValidateSouthAfricanIdNumberUsingDOB(updatedPatient.IdNumber, updatedPatient.DateOfBirth.ToString("yyyy-MM-dd"));
+                    // Replace this block in EditPatient method:
+                    // response.ExecuteResultAsync(HttpContext).Wait(); // Execute the validation synchronously for simplicity
+
+                    // With this:
+                    if (response is BadRequestObjectResult badRequest)
+                    {
+                        return BadRequest(badRequest.Value);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    return BadRequest(ex.Message);
+                }
+
             // Update the existing patient record
             existingPatient.Name = updatedPatient.Name;
             existingPatient.Surname = updatedPatient.Surname;
@@ -126,9 +148,11 @@ namespace WimMed.Controllers
             existingPatient.Phone = updatedPatient.Phone;
             existingPatient.Email = updatedPatient.Email;
             existingPatient.DateOfBirth = updatedPatient.DateOfBirth;
-            try 
-            { 
+            try
+            {
                 dbContext.Patients.Update(existingPatient);
+                dbContext.SaveChanges();
+                return Ok(existingPatient);
             }
             catch (Exception dbEx)
             {
@@ -142,8 +166,10 @@ namespace WimMed.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {dbEx.Message}");
                 }
             }
-            dbContext.SaveChanges();
-            return NoContent();
+     
+
+
+
         }
 
         /// <summary>
@@ -151,7 +177,7 @@ namespace WimMed.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the patient.</param>
         [HttpDelete]
-        [Route("{id:guid}")]
+        [Route("DeletePatient/{id:guid}")]
         public IActionResult DeletePatient(Guid id)
         {
             var patient = dbContext.Patients.FirstOrDefault(p => p.Id == id);
@@ -159,9 +185,32 @@ namespace WimMed.Controllers
             {
                 return NotFound();
             }
+            //remove PatientInfos using Patient Id
+            var patientInfos = dbContext.PatientInfos.Where(pi => pi.PatientId == id).ToList();
+            if (patientInfos.Any())
+            {
+                dbContext.PatientInfos.RemoveRange(patientInfos);
+                dbContext.SaveChanges();
+            }
             dbContext.Patients.Remove(patient);
-            dbContext.SaveChanges();
-            return NoContent();
+            try 
+            { 
+                dbContext.SaveChanges();
+                return Ok("Patient record deleted successfully.");
+            }
+            catch (Exception dbEx)
+            {
+                //handle foreign key constraint errors or other database errors
+                if (dbEx.InnerException != null && dbEx.InnerException.Message.Contains("foreign key constraint"))
+                {
+                    return Conflict("Cannot delete patient with existing related records.");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {dbEx.Message}");
+                }
+            }
+
         }
 
         /// <summary>
@@ -172,6 +221,7 @@ namespace WimMed.Controllers
         /// <param name="DateOfBirth">The date of birth in "yyyy-MM-dd" format.</param>
         
         [HttpGet]
+        [Route("validate-id-number")]
         public IActionResult ValidateSouthAfricanIdNumberUsingDOB(string idNumber, string DateOfBirth)
         {
             // Validate the South African ID number format using date of birth
@@ -195,6 +245,28 @@ namespace WimMed.Controllers
                 return BadRequest("The date of birth does not match the ID number.");
             }
             return Ok(true);
+        }
+
+        //Search for patients by name or surname or ID number
+        [HttpGet]
+        [Route("search")]
+        public IActionResult SearchPatients(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                return BadRequest("Search query cannot be empty.");
+            }
+            var loweredQuery = query.ToLower();
+            var patients = dbContext.Patients
+                .Where(p => p.Name.ToLower().Contains(loweredQuery) ||
+                            p.Surname.ToLower().Contains(loweredQuery) ||
+                            p.IdNumber.ToLower().Contains(loweredQuery))
+                .ToList();
+            if (!patients.Any())
+            {
+                return NotFound("No patients found matching the search criteria.");
+            }
+            return Ok(patients);
         }
     }
 }
