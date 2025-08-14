@@ -22,7 +22,7 @@ namespace WimMed.Models.Entities
         /// South African ID number of the patient.
         /// </summary>
         [DisplayName("South African ID Number")]
-        [StringLength(13, ErrorMessage = "Phone number cannot exceed 13 characters.")]
+        [StringLength(13, ErrorMessage = "ID number cannot exceed 13 characters.")]
         public required string IdNumber { get; set; } //Validate SA Id Number format
 
         /// <summary>
