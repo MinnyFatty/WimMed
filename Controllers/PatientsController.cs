@@ -157,11 +157,26 @@ namespace WimMed.Controllers
             var patient = dbContext.Patients.FirstOrDefault(p => p.Id == id);
             if (patient == null)
             {
-                return NotFound();
+                return NotFound($"Patient with PatientId: {id.ToString()} was not found. \nNo record to delete.");
             }
+            try 
+            { 
             dbContext.Patients.Remove(patient);
             dbContext.SaveChanges();
-            return NoContent();
+                return Ok("Patient deleted successfully.");
+            }
+            catch (Exception dbEx)
+            {
+                //handle foreign key constraint violation or other database errors
+                if (dbEx.InnerException != null && dbEx.InnerException.Message.Contains("foreign key constraint"))
+                {
+                    return Conflict("Cannot delete patient with existing related records.");
+                }
+                else
+                {
+                    return StatusCode(StatusCodes.Status500InternalServerError, $"Database error: {dbEx.Message}");
+                }
+            }
         }
 
         /// <summary>
