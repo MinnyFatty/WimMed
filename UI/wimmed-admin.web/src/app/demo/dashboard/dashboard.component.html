@@ -1,0 +1,145 @@
+  <div *ngIf="errorMessage" class="alert alert-danger mt-2">{{ errorMessage }}</div>
+
+
+<!-- Edit Patient Modal -->
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: editModalOpen ? 'block' : 'none', background: 'rgba(0,0,0,0.5)' }" *ngIf="editModalOpen">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Patient</h5>
+        <button type="button" class="btn-close" (click)="cancelEditPatient()"></button>
+      </div>
+      <form (ngSubmit)="saveEditedPatient()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" [(ngModel)]="editPatientForm.name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Surname</label>
+            <input type="text" class="form-control" [(ngModel)]="editPatientForm.surname" name="surname">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">ID Number</label>
+            <input type="text" class="form-control" [(ngModel)]="editPatientForm.idNumber" name="idNumber" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Date of Birth</label>
+            <input type="date" class="form-control" [(ngModel)]="editPatientForm.dateOfBirth" name="dateOfBirth" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="editPatientForm.email" name="email">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Phone</label>
+            <input type="text" class="form-control" [(ngModel)]="editPatientForm.phone" name="phone">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelEditPatient()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<div class="container mt-4">
+  <h2>Patient List</h2>
+  <form class="row g-3 mb-3" (ngSubmit)="searchPatients()">
+    <div class="col-md-8">
+      <input type="text" class="form-control" placeholder="Search patients..." [(ngModel)]="searchString" name="search">
+    </div>
+    <div class="col-md-4">
+      <button type="submit" class="btn btn-primary">Search</button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="getAllPatients()">Reset</button>
+    </div>
+  </form>
+  <div *ngIf="loading" class="alert alert-info">Loading...</div>
+  <div *ngIf="!loading && patients.length === 0" class="alert alert-warning">No patients found.</div>
+  <div class="table-responsive" *ngIf="patients.length > 0">
+    <table class="table table-bordered table-hover">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Name</th>
+          <th>Surname</th>
+          <th>ID Number</th>
+          <th>Date of Birth</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let patient of patients; let i = index">
+          <tr>
+            <td>
+              <button class="btn btn-sm btn-info me-2" (click)="togglePatientInfo(patient)">
+                {{ expandedPatientId === patient.id ? 'Hide Info' : 'Show Info' }}
+              </button>
+            </td>
+            <td>{{ patient.name }}</td>
+            <td>{{ patient.surname }}</td>
+            <td>{{ patient.idNumber }}</td>
+            <td>{{ patient.dateOfBirth }}</td>
+            <td>{{ patient.email }}</td>
+            <td>{{ patient.phone }}</td>
+            <td>
+              <button class="btn btn-sm btn-primary me-2" (click)="editPatient(patient)">Edit</button>
+              <button class="btn btn-sm btn-danger" (click)="deletePatient(patient)">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="expandedPatientId === patient.id">
+            <td colspan="7">
+              <div *ngIf="patientInfosLoading" class="alert alert-info">Loading patient info...</div>
+              <div *ngIf="!patientInfosLoading && patientInfos.length === 0" class="alert alert-warning">No patient info found.</div>
+              <div *ngIf="!patientInfosLoading && patientInfos.length > 0">
+                <ul class="list-group">
+                  <li class="list-group-item d-flex justify-content-between align-items-center" *ngFor="let info of patientInfos">
+                    <div>
+                      <div *ngIf="info.age !== undefined"><strong>Age:</strong> {{ info.age }}</div>
+                      <div *ngIf="info.height !== undefined"><strong>Height:</strong> {{ info.height }}</div>
+                      <div *ngIf="info.weight !== undefined"><strong>Weight:</strong> {{ info.weight }}</div>
+                      <div *ngIf="info.bmi !== undefined"><strong>BMI:</strong> {{ info.bmi }}</div>
+                      <div *ngIf="info.bmiStatus !== undefined"><strong>BMI Status:</strong> {{ info.bmiStatus }}</div>
+                    </div>
+                    <button class="btn btn-sm btn-warning ms-2" (click)="openEditPatientInfo(info)">Edit Info</button>
+                  </li>
+                </ul>
+                <div *ngIf="lastPatientInfoMessage" class="alert alert-info mt-2">
+                  {{ lastPatientInfoMessage }}
+                </div>
+
+<!-- Edit PatientInfo Modal -->
+<div class="modal fade show" tabindex="-1" [ngStyle]="{ display: editPatientInfoModalOpen ? 'block' : 'none', background: 'rgba(0,0,0,0.5)' }" *ngIf="editPatientInfoModalOpen">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Edit Patient Info</h5>
+        <button type="button" class="btn-close" (click)="cancelEditPatientInfo()"></button>
+      </div>
+      <form (ngSubmit)="saveEditedPatientInfo()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Weight</label>
+            <input type="number" class="form-control" [(ngModel)]="editPatientInfoForm.weight" name="weight" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Height</label>
+            <input type="number" class="form-control" [(ngModel)]="editPatientInfoForm.height" name="height" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Age</label>
+            <input type="number" class="form-control" [(ngModel)]="editPatientInfoForm.age" name="age" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="cancelEditPatientInfo()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+      
