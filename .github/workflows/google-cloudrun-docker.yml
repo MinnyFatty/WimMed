@@ -25,37 +25,6 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
 
-    # Optional: Publish the app (for deployment)
-    - name: Publish
-      run: dotnet publish --configuration Release --output ./publish
-
-    name: Google Cloud Run Docker CI/CD
-
-on:
-  push:
-    branches: [ release ]
-  pull_request:
-    branches: [ release ]
-
-jobs:
-  build-test-deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
-
-    - name: Build
-      run: dotnet build --configuration Release
-
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
-
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
@@ -71,15 +40,18 @@ jobs:
       run: gcloud auth configure-docker africa-south1-docker.pkg.dev
 
     - name: Build Docker image
-      run: docker build -t africa-south1-docker.pkg.dev/wimmed/WimMed/Container1:${{ github.sha }} .
+  
+      run: docker build -t gcr.io/cloudrun/placeholder@sha256:aafee0b13cdc19d6dd055be74d3405b9435b8108b0a3f181c01c38b4c8abf899
 
     - name: Push Docker image
-      run: docker push africa-south1-docker.pkg.dev/wimmed/WimMed/Container1:${{ github.sha }}
+      run: docker push gcr.io/cloudrun/placeholder@sha256:aafee0b13cdc19d6dd055be74d3405b9435b8108b0a3f181c01c38b4c8abf899
 
     - name: Deploy to Cloud Run
       run: |
         gcloud run deploy <SERVICE_NAME> \
-          --image africa-south1-docker.pkg.dev/wimmed/WimMed/Container1${{ github.sha }} \
+          --image gcr.io/cloudrun/placeholder@sha256:aafee0b13cdc19d6dd055be74d3405b9435b8108b0a3f181c01c38b4c8abf899
           --region africa-south1 \
           --platform managed \
           --allow-unauthenticated
+
+      

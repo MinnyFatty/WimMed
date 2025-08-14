@@ -18,12 +18,12 @@ namespace WimMed.Models.Entities
     /// </summary>
     public required string Surname { get; set; }
 
-    /// <summary>
-    /// South African ID number of the patient.
-    /// </summary>
-    [DisplayName("South African ID Number")]
-    [StringLength(20)]
-    public required string IdNumber { get; set; } //Validate SA Id Number format
+        /// <summary>
+        /// South African ID number of the patient.
+        /// </summary>
+        [DisplayName("South African ID Number")]
+        [StringLength(13, ErrorMessage = "ID number cannot exceed 13 characters.")]
+        public required string IdNumber { get; set; } //Validate SA Id Number format
 
     /// <summary>
     /// Phone number of the patient.

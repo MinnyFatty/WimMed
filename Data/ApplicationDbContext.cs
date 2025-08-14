@@ -24,7 +24,6 @@ namespace WimMed.Data
                 .HasKey(pi => pi.Id);
 
 
-
         }
     }
 }

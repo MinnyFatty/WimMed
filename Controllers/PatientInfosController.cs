@@ -29,7 +29,7 @@ namespace WimMed.Controllers
         /// </summary>
         /// <param name="id">The unique identifier of the patient information record.</param>
         [HttpGet]
-        [Route("{id:int}")]
+        [Route("GetPatientInfoById/{id:int}")]
         public IActionResult GetPatientInfoById(int id)
         {
             var patientInfo = dbContext.PatientInfos.FirstOrDefault(pi => pi.Id == id);

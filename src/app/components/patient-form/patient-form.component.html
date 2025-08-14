@@ -1,0 +1,17 @@
+<form (ngSubmit)="onSubmit()">
+  <h3>Patient Details</h3>
+  <input [(ngModel)]="patient.name" name="name" placeholder="Name" required />
+  <input [(ngModel)]="patient.surname" name="surname" placeholder="Surname" required />
+  <input [(ngModel)]="patient.idNumber" name="idNumber" placeholder="ID Number" required />
+  <input [(ngModel)]="patient.phone" name="phone" placeholder="Phone" required />
+  <input [(ngModel)]="patient.email" name="email" placeholder="Email" />
+  <input [(ngModel)]="patient.dateOfBirth" name="dateOfBirth" type="date" placeholder="Date of Birth" required />
+
+  <h3>Patient Info</h3>
+  <input [(ngModel)]="patientInfo.weight" name="weight" type="number" placeholder="Weight (kg)" />
+  <input [(ngModel)]="patientInfo.height" name="height" type="number" placeholder="Height (cm)" />
+  <input [(ngModel)]="patientInfo.age" name="age" type="number" placeholder="Age" />
+
+  <button type="submit">Add Patient</button>
+</form>
+<div *ngIf="message">{{ message }}</div>
